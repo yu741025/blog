@@ -14,8 +14,13 @@ def create_comment(
         blog_id: str,
         content: str,
         parent_id: Optional[str] = None,
-        comment_id: str = str(ULID())
+        comment_id: str = None  # 修改為可選參數
 ) -> models.Comment:
+    # 如果沒有提供評論ID，則生成一個新的
+    if comment_id is None:
+        comment_id = str(ULID())
+    
+    # 創建評論
     comment = models.Comment(
         id=comment_id,
         content=content,

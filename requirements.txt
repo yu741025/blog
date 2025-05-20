@@ -12,6 +12,7 @@ python-ulid[pydantic]
 redis[hiredis]
 boto3
 alembic
+PIL
 
 
 

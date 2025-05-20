@@ -127,3 +127,4 @@ async def upload_avatar(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"上傳頭像失敗: {str(e)}"
         )
+    

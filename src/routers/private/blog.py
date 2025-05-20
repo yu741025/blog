@@ -20,29 +20,20 @@ async def create_blog(
         db: Session = Depends(get_db)
 ):
     # 創建新部落格文章
-    try:
-        new_blog = blog_crud.create_blog(
-            db=db,
-            author_id=current_user.id,
-            title=blog_data.title,
-            content=blog_data.content,
-            summary=blog_data.summary,
-            cover_image_url=blog_data.cover_image_url,
-            is_draft=blog_data.is_draft,
-            tag_ids=blog_data.tag_ids,
-            category_ids=blog_data.category_ids
-        )
-        
-        # 構建響應
-        return convert_blog_to_detail(new_blog)
-    except Exception as e:
-        print(f"創建博客文章失敗: {str(e)}")
-        import traceback
-        print(traceback.format_exc())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"創建部落格文章失敗: {str(e)}"
-        )
+    new_blog = blog_crud.create_blog(
+        db=db,
+        author_id=current_user.id,
+        title=blog_data.title,
+        content=blog_data.content,
+        summary=blog_data.summary,
+        cover_image_url=blog_data.cover_image_url,
+        is_draft=blog_data.is_draft,
+        tag_ids=blog_data.tag_ids,
+        category_ids=blog_data.category_ids
+    )
+    
+    # 構建響應
+    return convert_blog_to_detail(new_blog)
 
 
 @router.get("", response_model=List[schemas.BlogSummary])
@@ -138,8 +129,8 @@ async def delete_blog(
 
 @router.post("/upload-cover", status_code=status.HTTP_200_OK)
 async def upload_blog_cover(
-        _: Annotated[models.User, Depends(get_current_user)],
-        file: UploadFile = File(...)
+    current_user: Annotated[models.User, Depends(get_current_user)],
+    file: UploadFile = File(...)
 ):
     # 檢查文件類型
     if not file.content_type.startswith("image/"):
@@ -178,19 +169,6 @@ async def like_blog(
 
 # 輔助函數，將Blog模型轉換為BlogDetail
 def convert_blog_to_detail(blog: models.Blog) -> schemas.BlogDetail:
-    # 檢查作者是否是列表，如果是，取第一個元素
-    author = blog.author
-    if isinstance(author, list) and author:
-        author = author[0]
-    
-    # 獲取作者的帳號信息
-    account = None
-    if hasattr(author, 'account') and author.account:
-        if isinstance(author.account, list):
-            account = author.account[0]
-        else:
-            account = author.account
-    
     return schemas.BlogDetail(
         id=blog.id,
         title=blog.title,
@@ -203,17 +181,17 @@ def convert_blog_to_detail(blog: models.Blog) -> schemas.BlogDetail:
         created_at=blog.created_at.isoformat(),
         updated_at=blog.updated_at.isoformat(),
         author=schemas.UserDetail(
-            id=author.id,
-            name=author.name,
-            username=account.username if account else "",
-            bio=author.bio if hasattr(author, 'bio') else None,
-            avatar_url=author.avatar_url if hasattr(author, 'avatar_url') else None,
-            created_at=author.created_at.isoformat()
+            id=blog.author.id,
+            name=blog.author.name,
+            username=blog.author.account[0].username,
+            bio=blog.author.bio,
+            avatar_url=blog.author.avatar_url,
+            created_at=blog.author.created_at.isoformat()
         ),
         tags=[
             schemas.TagDetail(id=tag.id, name=tag.name)
             for tag in blog.tags
-        ] if blog.tags else [],
+        ],
         categories=[
             schemas.CategoryDetail(
                 id=category.id,
@@ -221,26 +199,63 @@ def convert_blog_to_detail(blog: models.Blog) -> schemas.BlogDetail:
                 description=category.description
             )
             for category in blog.categories
-        ] if blog.categories else []
+        ]
     )
 
 
 # 輔助函數，將Blog模型轉換為BlogSummary
 def convert_blog_to_summary(blog: models.Blog) -> schemas.BlogSummary:
-    # 檢查作者是否是列表，如果是，取第一個元素
-    author = blog.author
-    if isinstance(author, list) and author:
-        author = author[0]
-    
-    return schemas.BlogSummary(
-        id=blog.id,
-        title=blog.title,
-        summary=blog.summary,
-        cover_image_url=blog.cover_image_url,
-        created_at=blog.created_at.isoformat(),
-        view_count=blog.view_count,
-        like_count=blog.like_count,
-        author_name=author.name,
-        tags=[tag.name for tag in blog.tags] if blog.tags else [],
-        categories=[category.name for category in blog.categories] if blog.categories else []
-    )
+    # 處理作者資訊 - 修正以處理InstrumentedList
+    try:
+        author = blog.author
+        if isinstance(author, list) and author:
+            # 如果author是一個列表（InstrumentedList），取第一個元素
+            author = author[0]
+        
+        # 確保author是一個對象而不是None
+        if not author:
+            author_name = "未知用戶"
+        else:
+            author_name = getattr(author, 'name', "未知用戶")
+        
+        # 安全地處理標籤和分類
+        tags = [
+            tag.name for tag in blog.tags
+            if hasattr(tag, 'name')
+        ] if hasattr(blog, 'tags') and blog.tags else []
+        
+        categories = [
+            category.name for category in blog.categories
+            if hasattr(category, 'name')
+        ] if hasattr(blog, 'categories') and blog.categories else []
+        
+        return schemas.BlogSummary(
+            id=blog.id,
+            title=blog.title,
+            summary=blog.summary,
+            cover_image_url=blog.cover_image_url,
+            created_at=blog.created_at.isoformat(),
+            view_count=blog.view_count,
+            like_count=blog.like_count,
+            author_name=author_name,
+            tags=tags,
+            categories=categories
+        )
+    except Exception as e:
+        print(f"轉換摘要時出錯: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+        
+        # 如果出錯，返回最小化的摘要
+        return schemas.BlogSummary(
+            id=blog.id if hasattr(blog, 'id') else "unknown",
+            title=blog.title if hasattr(blog, 'title') else "未知標題",
+            summary=blog.summary if hasattr(blog, 'summary') else None,
+            cover_image_url=blog.cover_image_url if hasattr(blog, 'cover_image_url') else None,
+            created_at=blog.created_at.isoformat() if hasattr(blog, 'created_at') else "",
+            view_count=blog.view_count if hasattr(blog, 'view_count') else 0,
+            like_count=blog.like_count if hasattr(blog, 'like_count') else 0,
+            author_name="未知用戶",
+            tags=[],
+            categories=[]
+        )
