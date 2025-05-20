@@ -14,7 +14,7 @@
   - [標籤和分類](#標籤和分類)
   - [圖片上傳](#圖片上傳)
 - [API文檔](#api文檔)
-- [數據庫模型](#數據庫模型)
+- [資料庫模型](#資料庫模型)
 - [開發指南](#開發指南)
 - [部署指南](#部署指南)
 - [問題排解](#問題排解)
@@ -53,7 +53,7 @@
 ## 系統架構
 
 - **後端框架**: FastAPI
-- **數據庫**: MySQL
+- **資料庫**: MySQL
 - **ORM**: SQLAlchemy
 - **認證**: JWT (JSON Web Tokens)
 - **文件存儲**: AWS S3 + CloudFront
@@ -77,7 +77,7 @@
 
 3. 編輯`.env`文件，設置必要的環境變量:
    ```
-   # 數據庫設置
+   # 資料庫設置
    DB_HOST=mysql
    DB_USER=admin
    DB_PASS=admin1234
@@ -102,7 +102,7 @@
    docker-compose up -d
    ```
 
-5. 初始化數據庫:
+5. 初始化資料庫:
    訪問 `http://localhost:8000/renewDB`
 
 6. 訪問API文檔:
@@ -193,7 +193,7 @@ curl -X PUT "http://localhost:8000/private/users/me" \
 
 **API路徑**: `POST /private/users/me/avatar`
 
-**請求格式**: 表單數據，包含一個名為 `file` 的文件字段
+**請求格式**: 表單資料，包含一個名為 `file` 的文件字段
 
 **示例**:
 ```bash
@@ -318,7 +318,7 @@ curl -X DELETE "http://localhost:8000/private/blogs/01JVM21FC7XGAZG26NVM5JWEJN" 
 
 **API路徑**: `POST /private/blogs/upload-cover`
 
-**請求格式**: 表單數據，包含一個名為 `file` 的文件字段
+**請求格式**: 表單資料，包含一個名為 `file` 的文件字段
 
 **示例**:
 ```bash
@@ -490,9 +490,9 @@ LOCAL_STORAGE_PATH=./uploads
    - 現代化的UI
    - 更好的導航體驗
 
-## 數據庫模型
+## 資料庫模型
 
-系統使用以下主要數據模型:
+系統使用以下主要資料模型:
 
 1. **User**: 用戶模型
    - `id`: 用戶唯一識別碼
@@ -545,11 +545,11 @@ LOCAL_STORAGE_PATH=./uploads
 
 ```
 └── src/
-    ├── crud/           # 數據庫操作函數
-    ├── database/       # 數據庫連接和模型
+    ├── crud/           # 資料庫操作函數
+    ├── database/       # 資料庫連接和模型
     ├── dependencies/   # 依賴項（認證等）
     ├── routers/        # API路由
-    │   ├── db/         # 數據庫管理路由
+    │   ├── db/         # 資料庫管理路由
     │   ├── private/    # 需要認證的API
     │   ├── public/     # 公開API
     │   └── root/       # 管理員API
@@ -560,7 +560,7 @@ LOCAL_STORAGE_PATH=./uploads
 
 ### 添加新功能
 
-1. **新增數據模型**:
+1. **新增資料模型**:
    - 在 `src/database/models.py` 中添加新的模型類
 
 2. **實現CRUD操作**:
@@ -585,7 +585,7 @@ docker-compose exec backend pytest
 
 1. 修改 `.env` 文件，設置生產環境配置
 2. 運行 `docker-compose up -d`
-3. 初始化數據庫 `http://your-domain/renewDB`
+3. 初始化資料庫 `http://your-domain/renewDB`
 
 ### 使用Nginx作為反向代理
 
@@ -595,8 +595,8 @@ docker-compose exec backend pytest
 
 ### 常見問題
 
-1. **無法連接數據庫**
-   - 檢查 `.env` 文件中的數據庫配置
+1. **無法連接資料庫**
+   - 檢查 `.env` 文件中的資料庫配置
    - 確保MySQL容器已啟動
 
 2. **圖片上傳失敗**
@@ -628,12 +628,12 @@ docker-compose logs -f backend
 # 停止所有容器
 docker-compose down
 
-# 刪除數據卷
+# 刪除資料卷
 docker volume rm fastapi-template_mysql_data
 
 # 重新啟動
 docker-compose up -d
 
-# 初始化數據庫
+# 初始化資料庫
 訪問 http://localhost:8000/renewDB
 ```
