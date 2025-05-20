@@ -78,11 +78,11 @@
 3. 編輯`.env`文件，設置必要的環境變量:
    ```
    # 資料庫設置
-   DB_HOST=mysql
-   DB_USER=admin
-   DB_PASS=admin1234
-   DB_PORT=3306
-   DB_NAME=template_db
+   DB_HOST=
+   DB_USER=
+   DB_PASS=
+   DB_PORT=
+   DB_NAME=
 
    # 文件上傳設置
    # 選項1: AWS S3 (雲端儲存)
