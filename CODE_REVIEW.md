@@ -3,7 +3,7 @@
 ## 1. 善用 `Annotated`，嚴格定義 typing
 
 - 使用 [Enum](https://github.com/ShuChenAI/teamsync-backend/blob/cd94f425826de3e4316ae7f2c23e37135a07051f/src/schemas/__init__.py#L13) 取代字串常數。
-- 使用 [Regex pattern](https://github.com/ShuChenAI/teamsync-backend/blob/cd94f425826de3e4316ae7f2c23e37135a07051f/src/schemas/cyber_accounts.py#L12) 取代原始字串驗證。
+- 使用 [Regex pattern](https://github.com/ShuChenAI/teamsync-backend/blob/cd94f425826de3e4316ae7f2c23e37135a07051f/src/schemas/cyber_accounts.py#L12) 取代原始字串驗證。Ex.startAt, editAt
 - 優先使用閉區間（Closed interval）而非開區間（Open interval）。
 
 ## 2. 明確定義 API 參數類別
