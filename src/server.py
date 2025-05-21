@@ -8,11 +8,11 @@ from src.schemas.basic import TextOnly
 from src.utils.swagger import custom_swagger_ui_html
 
 app = FastAPI(
-    title="Template FastAPI Backend Server",
-    description="Template Description",
+    title="Blog FastAPI Backend Server",
+    description="Blog FastAPI Backend Server",
     version="0.0.1",
     contact={
-        "name": "Author Name",
+        "name": "Sabrina You",
         "email": "example@exmaple.com",
     },
     docs_url=None
